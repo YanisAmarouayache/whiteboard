@@ -4,4 +4,22 @@
   padding: 8px 12px;
   border-bottom: 1px solid #e5e7eb;
   background: #ffffff;
+  align-items: center;
+}
+
+.board-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #334155;
+  margin-right: 8px;
+}
+
+.board-switcher select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px 8px;
+  min-width: 180px;
 }

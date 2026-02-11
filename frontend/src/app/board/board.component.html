@@ -1,5 +1,9 @@
 <section class="board-shell">
-  <app-toolbar></app-toolbar>
+  <app-toolbar
+    [boards]="boards"
+    [selectedBoardId]="selectedBoardId"
+    (boardChange)="onBoardChange($event)"
+  ></app-toolbar>
   <div class="board-layout">
     <app-widget-palette></app-widget-palette>
     <app-canvas></app-canvas>

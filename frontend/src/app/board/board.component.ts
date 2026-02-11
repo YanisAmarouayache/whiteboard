@@ -6,6 +6,7 @@ import { BoardApiService } from '../core/services/board-api.service';
 import { Router } from '@angular/router';
 import { WidgetInstance } from './models/widget-instance';
 import { environment } from '../../environments/environment';
+import { Board } from '../core/models/board';
 
 @Component({
   selector: 'app-board',
@@ -14,6 +15,8 @@ import { environment } from '../../environments/environment';
 })
 export class BoardComponent implements OnInit, OnDestroy {
   readonly state$: Observable<BoardState>;
+  boards: Board[] = [];
+  selectedBoardId = '';
   private readonly destroy$ = new Subject<void>();
   private saveInFlight = false;
   private pendingSave = false;
@@ -30,15 +33,9 @@ export class BoardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.boardApi.bootstrap().subscribe({
       next: (res) => {
-        const state: BoardState = {
-          id: res.board.id,
-          name: res.board.name,
-          version: res.board.version,
-          transform: { x: 0, y: 0, scale: 1 },
-          widgets: (res.board.state?.widgets as WidgetInstance[]) ?? []
-        };
-        this.boardState.replace(state);
-        this.persistedKey = this.serializeState(state);
+        this.boards = res.boards;
+        this.selectedBoardId = res.board.id;
+        this.loadBoardIntoState(res.board);
       },
       error: () => {
         void this.router.navigate(['/login']);
@@ -56,6 +53,17 @@ export class BoardComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.saveState();
       });
+  }
+
+  onBoardChange(boardId: string): void {
+    if (!boardId || boardId === this.selectedBoardId) return;
+    this.saveState();
+    this.boardApi.get(boardId).subscribe({
+      next: (board) => {
+        this.selectedBoardId = board.id;
+        this.loadBoardIntoState(board);
+      }
+    });
   }
 
   @HostListener('window:beforeunload')
@@ -107,6 +115,18 @@ export class BoardComponent implements OnInit, OnDestroy {
 
   private serializeState(state: Pick<BoardState, 'id' | 'widgets'>): string {
     return JSON.stringify({ id: state.id, widgets: state.widgets });
+  }
+
+  private loadBoardIntoState(board: Board): void {
+    const state: BoardState = {
+      id: board.id,
+      name: board.name,
+      version: board.version,
+      transform: { x: 0, y: 0, scale: 1 },
+      widgets: (board.state?.widgets as WidgetInstance[]) ?? []
+    };
+    this.boardState.replace(state);
+    this.persistedKey = this.serializeState(state);
   }
 
   ngOnDestroy(): void {

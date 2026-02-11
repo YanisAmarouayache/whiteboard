@@ -1,4 +1,10 @@
 <nav class="toolbar">
+  <label class="board-switcher">
+    Board
+    <select [ngModel]="selectedBoardId" (ngModelChange)="onBoardSelect($event)">
+      <option *ngFor="let board of boards" [value]="board.id">{{ board.name }}</option>
+    </select>
+  </label>
   <button (click)="undo()">Undo</button>
   <button (click)="redo()">Redo</button>
 </nav>
