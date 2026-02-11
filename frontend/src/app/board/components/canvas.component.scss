@@ -1,0 +1,46 @@
+.canvas {
+  position: relative;
+  overflow: auto;
+  min-height: 0;
+  padding: 24px;
+  background: #f3f4f6;
+  cursor: grab;
+}
+
+.canvas.panning {
+  cursor: grabbing;
+}
+
+.zoom-controls {
+  position: sticky;
+  top: 8px;
+  margin-left: auto;
+  z-index: 60;
+  width: fit-content;
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.zoom-controls button {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.board-surface {
+  position: relative;
+  min-width: 2200px;
+  min-height: 1400px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  transform-origin: top left;
+}

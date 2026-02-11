@@ -1,0 +1,19 @@
+<section class="login-shell">
+  <form class="login-card" (ngSubmit)="login()">
+    <h1>Sign in</h1>
+    <label>
+      Name (for first sign-up)
+      <input [(ngModel)]="name" name="name" />
+    </label>
+    <label>
+      Email
+      <input [(ngModel)]="email" name="email" required type="email" />
+    </label>
+    <label>
+      Password
+      <input [(ngModel)]="password" name="password" required type="password" />
+    </label>
+    <button type="submit" [disabled]="loading">{{ loading ? 'Please wait...' : 'Continue' }}</button>
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </form>
+</section>

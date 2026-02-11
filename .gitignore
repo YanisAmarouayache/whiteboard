@@ -1,0 +1,10 @@
+.env
+node_modules/
+dist/
+coverage/
+*.log
+backend/server
+frontend/.angular/
+frontend/.cache/
+frontend/.sass-cache/
+.DS_Store

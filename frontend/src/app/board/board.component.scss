@@ -1,0 +1,12 @@
+.board-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.board-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  flex: 1;
+  min-height: 0;
+}

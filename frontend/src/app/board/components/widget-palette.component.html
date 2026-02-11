@@ -1,0 +1,35 @@
+<aside class="widget-palette">
+  <h3>Widgets</h3>
+  <ul class="widget-types">
+    <li *ngFor="let widget of registry.list()">
+      <button (click)="add(widget.type)">{{ widget.name }}</button>
+    </li>
+  </ul>
+
+  <h4>Liste des widgets</h4>
+  <ul class="widget-list" *ngIf="widgets$ | async as widgets">
+    <li *ngFor="let widget of widgets; let i = index; trackBy: trackByWidgetId" class="widget-list-item">
+      <p class="widget-label">{{ widget.type }} ({{ widget.id | slice:0:6 }})</p>
+      <p class="layer-label">Layer {{ i + 1 }} / {{ widgets.length }}</p>
+
+      <div class="layer-controls">
+        <button type="button" (click)="sendToBack(widget.id)">Tout derrière</button>
+        <button type="button" (click)="sendBackward(widget.id)">Arrière</button>
+        <button type="button" (click)="bringForward(widget.id)">Avant</button>
+        <button type="button" (click)="bringToFront(widget.id)">Tout devant</button>
+      </div>
+
+      <label *ngIf="widget.type === 'chart'" class="control-row">
+        Type de chart
+        <select [ngModel]="getChartType(widget)" (ngModelChange)="setChartType(widget.id, $event)">
+          <option *ngFor="let type of chartTypes" [value]="type">{{ type }}</option>
+        </select>
+      </label>
+
+      <label *ngIf="widget.type === 'image'" class="control-row">
+        Importer une image
+        <input type="file" accept="image/*" (change)="onImageFileSelected(widget.id, $event)" />
+      </label>
+    </li>
+  </ul>
+</aside>

@@ -1,0 +1,64 @@
+<article
+  class="widget-instance"
+  [class.transparent-shell]="widget.type === 'chart'"
+  [class.no-border-shell]="widget.type === 'chart'"
+  [style.left.px]="previewX"
+  [style.top.px]="previewY"
+  [style.width.px]="previewWidth"
+  [style.height.px]="previewHeight"
+  (contextmenu)="openContextMenu($event)"
+>
+  <div
+    class="widget-content"
+    [class.transparent-content]="widget.type === 'chart'"
+    [class.no-border-content]="widget.type === 'chart'"
+  >
+    <ng-container *ngIf="widgetComponent as component; else fallback">
+      <ng-container *ngComponentOutlet="component; inputs: widgetInputs"></ng-container>
+    </ng-container>
+
+    <ng-template #fallback>
+      <pre>{{ widget.config | json }}</pre>
+    </ng-template>
+  </div>
+
+  <button
+    type="button"
+    class="drag-handle"
+    aria-label="Drag widget"
+    (mousedown)="startDragFromHandle($event)"
+  >
+    <span aria-hidden="true">⠿</span>
+  </button>
+
+  <div
+    class="context-menu"
+    *ngIf="contextMenuVisible"
+    [style.left.px]="contextMenuX"
+    [style.top.px]="contextMenuY"
+    (mousedown)="$event.stopPropagation()"
+    (click)="$event.stopPropagation()"
+  >
+    <button type="button" (click)="bringToFront()">Tout devant</button>
+    <button type="button" (click)="bringForward()">Avant</button>
+    <button type="button" (click)="sendBackward()">Arrière</button>
+    <button type="button" (click)="sendToBack()">Tout derrière</button>
+    <button type="button" class="danger" (click)="deleteWidget()">Supprimer</button>
+  </div>
+
+  <button
+    *ngFor="let handle of resizeHandles"
+    type="button"
+    class="resize-handle"
+    [class.resize-n]="handle === 'n'"
+    [class.resize-s]="handle === 's'"
+    [class.resize-e]="handle === 'e'"
+    [class.resize-w]="handle === 'w'"
+    [class.resize-ne]="handle === 'ne'"
+    [class.resize-nw]="handle === 'nw'"
+    [class.resize-se]="handle === 'se'"
+    [class.resize-sw]="handle === 'sw'"
+    [attr.aria-label]="'Resize widget ' + handle"
+    (mousedown)="startResize($event, handle)"
+  ></button>
+</article>

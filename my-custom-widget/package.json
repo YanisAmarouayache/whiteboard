@@ -1,0 +1,8 @@
+{
+  "name": "my-custom-widget",
+  "version": "0.1.0",
+  "main": "dist/my-widget.js",
+  "scripts": {
+    "build": "echo 'Build with your preferred bundler'"
+  }
+}

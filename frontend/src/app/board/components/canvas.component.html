@@ -1,0 +1,18 @@
+<div class="canvas" [class.panning]="isPanning" (wheel)="onWheel($event)" (mousedown)="startPan($event)">
+  <ng-container *ngIf="transform$ | async as transform">
+    <div class="zoom-controls">
+      <button type="button" (click)="zoomBy(-0.1)">-</button>
+      <button type="button" (click)="resetZoom()">{{ zoomPercent(transform) }}%</button>
+      <button type="button" (click)="zoomBy(0.1)">+</button>
+    </div>
+
+    <div
+      class="board-surface"
+      [style.width.px]="boardWidth$ | async"
+      [style.height.px]="boardHeight$ | async"
+      [style.transform]="transformCss(transform)"
+    >
+      <app-widget-host [widgets]="(widgets$ | async) ?? []"></app-widget-host>
+    </div>
+  </ng-container>
+</div>

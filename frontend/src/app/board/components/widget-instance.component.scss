@@ -1,0 +1,194 @@
+.widget-instance {
+  position: absolute;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+  overflow: visible;
+  user-select: none;
+}
+
+.widget-instance.transparent-shell {
+  background: transparent;
+}
+
+.widget-instance.no-border-shell {
+  border-color: transparent;
+}
+
+.widget-content {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+}
+
+.widget-content.transparent-content {
+  background: transparent;
+}
+
+.widget-content.no-border-content {
+  border: 0;
+}
+
+pre {
+  margin: 0;
+  padding: 8px;
+  font-size: 12px;
+}
+
+.context-menu {
+  position: absolute;
+  min-width: 140px;
+  z-index: 50;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+  padding: 6px;
+  display: grid;
+  gap: 4px;
+}
+
+.context-menu button {
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.context-menu button:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.context-menu button.danger {
+  color: #b91c1c;
+}
+
+.drag-handle {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: grab;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out;
+}
+
+.widget-instance:hover .drag-handle,
+.widget-instance:focus-within .drag-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drag-handle span {
+  font-size: 12px;
+  line-height: 1;
+  color: #334155;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.resize-handle {
+  position: absolute;
+  z-index: 45;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-in-out;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  background: #ffffff;
+  opacity: 0.95;
+}
+
+.widget-instance:hover .resize-handle,
+.widget-instance:focus-within .resize-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.resize-n {
+  top: -4px;
+  left: 14px;
+  right: 14px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resize-s {
+  bottom: -4px;
+  left: 14px;
+  right: 14px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resize-e {
+  right: -4px;
+  top: 14px;
+  bottom: 14px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.resize-w {
+  left: -4px;
+  top: 14px;
+  bottom: 14px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.resize-ne {
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nesw-resize;
+}
+
+.resize-nw {
+  top: -4px;
+  left: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+}
+
+.resize-se {
+  right: -4px;
+  bottom: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nwse-resize;
+}
+
+.resize-sw {
+  left: -4px;
+  bottom: -4px;
+  width: 12px;
+  height: 12px;
+  cursor: nesw-resize;
+}
