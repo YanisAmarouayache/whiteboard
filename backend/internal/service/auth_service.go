@@ -6,16 +6,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yourusername/miro-clone-backend/internal/model"
-	"github.com/yourusername/miro-clone-backend/internal/repository"
+	"github.com/yourusername/miro-clone-backend/internal/port"
 	"github.com/yourusername/miro-clone-backend/pkg/util"
 )
 
 type AuthService struct {
-	users     repository.UserRepository
+	users     port.UserRepository
 	jwtSecret string
 }
 
-func NewAuthService(users repository.UserRepository, jwtSecret string) *AuthService {
+func NewAuthService(users port.UserRepository, jwtSecret string) *AuthService {
 	return &AuthService{users: users, jwtSecret: jwtSecret}
 }
 

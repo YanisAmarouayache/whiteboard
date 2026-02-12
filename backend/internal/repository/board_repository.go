@@ -5,21 +5,14 @@ import (
 	"database/sql"
 
 	"github.com/yourusername/miro-clone-backend/internal/model"
+	"github.com/yourusername/miro-clone-backend/internal/port"
 )
-
-type BoardRepository interface {
-	GetByID(ctx context.Context, id string) (*model.Board, error)
-	ListByWorkspace(ctx context.Context, workspaceID string) ([]model.Board, error)
-	Create(ctx context.Context, board *model.Board) error
-	UpdateWithVersion(ctx context.Context, boardID string, state []byte, expectedVersion int) (bool, error)
-	Delete(ctx context.Context, boardID string) error
-}
 
 type boardRepository struct {
 	db *sql.DB
 }
 
-func NewBoardRepository(db *sql.DB) BoardRepository {
+func NewBoardRepository(db *sql.DB) port.BoardRepository {
 	return &boardRepository{db: db}
 }
 
@@ -113,4 +106,21 @@ func (r *boardRepository) UpdateWithVersion(ctx context.Context, boardID string,
 func (r *boardRepository) Delete(ctx context.Context, boardID string) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM boards WHERE id = $1::uuid`, boardID)
 	return err
+}
+
+func (r *boardRepository) UserCanAccess(ctx context.Context, boardID, userID string) (bool, error) {
+	query := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM boards b
+			INNER JOIN workspace_members wm ON wm.workspace_id = b.workspace_id
+			WHERE b.id = $1::uuid
+			  AND wm.user_id = $2::uuid
+		)
+	`
+	var canAccess bool
+	if err := r.db.QueryRowContext(ctx, query, boardID, userID).Scan(&canAccess); err != nil {
+		return false, err
+	}
+	return canAccess, nil
 }

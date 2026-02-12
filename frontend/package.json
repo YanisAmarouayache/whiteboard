@@ -5,7 +5,9 @@
   "scripts": {
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "eslint \"src/**/*.{ts,html}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,html}\" --fix"
   },
   "dependencies": {
     "@angular/animations": "^17.0.0",
@@ -23,8 +25,14 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.0.0",
+    "@angular-eslint/eslint-plugin": "^17.5.0",
+    "@angular-eslint/eslint-plugin-template": "^17.5.0",
+    "@angular-eslint/template-parser": "^17.5.0",
     "@angular/cli": "^17.0.0",
     "@angular/compiler-cli": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.12.0",
+    "@typescript-eslint/parser": "^7.12.0",
+    "eslint": "^8.56.0",
     "typescript": "^5.2.0"
   }
 }

@@ -6,13 +6,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yourusername/miro-clone-backend/internal/model"
-	"github.com/yourusername/miro-clone-backend/internal/repository"
+	"github.com/yourusername/miro-clone-backend/internal/port"
 )
 
 type BootstrapService struct {
-	users      repository.UserRepository
-	workspaces repository.WorkspaceRepository
-	boards     repository.BoardRepository
+	users      port.UserRepository
+	workspaces port.WorkspaceRepository
+	boards     port.BoardRepository
 }
 
 type BootstrapPayload struct {
@@ -23,9 +23,9 @@ type BootstrapPayload struct {
 }
 
 func NewBootstrapService(
-	users repository.UserRepository,
-	workspaces repository.WorkspaceRepository,
-	boards repository.BoardRepository,
+	users port.UserRepository,
+	workspaces port.WorkspaceRepository,
+	boards port.BoardRepository,
 ) *BootstrapService {
 	return &BootstrapService{users: users, workspaces: workspaces, boards: boards}
 }

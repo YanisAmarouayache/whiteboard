@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,12 +19,12 @@ func NewBootstrapHandler(bootstrap *service.BootstrapService) *BootstrapHandler 
 func (h *BootstrapHandler) Get(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing user context"})
+		writeError(c, http.StatusUnauthorized, errors.New("missing user context"))
 		return
 	}
 	payload, err := h.bootstrap.Load(c.Request.Context(), userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		writeError(c, http.StatusInternalServerError, err)
 		return
 	}
 	c.JSON(http.StatusOK, payload)

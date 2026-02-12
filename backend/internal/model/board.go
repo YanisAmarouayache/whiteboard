@@ -15,8 +15,3 @@ type Board struct {
 	CreatedAt   time.Time       `json:"createdAt"`
 	UpdatedAt   time.Time       `json:"updatedAt"`
 }
-
-type UpdateBoardRequest struct {
-	Widgets json.RawMessage `json:"widgets"`
-	Version int             `json:"version"`
-}

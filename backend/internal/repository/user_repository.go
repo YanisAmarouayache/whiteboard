@@ -6,19 +6,14 @@ import (
 	"errors"
 
 	"github.com/yourusername/miro-clone-backend/internal/model"
+	"github.com/yourusername/miro-clone-backend/internal/port"
 )
-
-type UserRepository interface {
-	GetByEmail(ctx context.Context, email string) (*model.User, error)
-	GetByID(ctx context.Context, id string) (*model.User, error)
-	Create(ctx context.Context, user *model.User) error
-}
 
 type userRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
+func NewUserRepository(db *sql.DB) port.UserRepository {
 	return &userRepository{db: db}
 }
 

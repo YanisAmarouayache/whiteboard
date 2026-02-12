@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, SimpleChanges, Type } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, SimpleChanges, Type } from '@angular/core';
 import { WidgetRegistryService } from '../../widget-sdk/widget-registry.service';
 import { WidgetInstance } from '../models/widget-instance';
 import { BoardStateService } from '../board-state.service';
@@ -10,7 +10,7 @@ type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
   templateUrl: './widget-instance.component.html',
   styleUrls: ['./widget-instance.component.scss']
 })
-export class WidgetInstanceComponent {
+export class WidgetInstanceComponent implements OnChanges {
   readonly resizeHandles: ResizeDirection[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
   @Input({ required: true }) widget!: WidgetInstance;

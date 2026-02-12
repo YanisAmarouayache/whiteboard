@@ -5,19 +5,14 @@ import (
 	"database/sql"
 
 	"github.com/yourusername/miro-clone-backend/internal/model"
+	"github.com/yourusername/miro-clone-backend/internal/port"
 )
-
-type WorkspaceRepository interface {
-	ListByUser(ctx context.Context, userID string) ([]model.Workspace, error)
-	Create(ctx context.Context, workspace *model.Workspace) error
-	AddMember(ctx context.Context, workspaceID, userID, role string) error
-}
 
 type workspaceRepository struct {
 	db *sql.DB
 }
 
-func NewWorkspaceRepository(db *sql.DB) WorkspaceRepository {
+func NewWorkspaceRepository(db *sql.DB) port.WorkspaceRepository {
 	return &workspaceRepository{db: db}
 }
 
@@ -66,4 +61,20 @@ func (r *workspaceRepository) AddMember(ctx context.Context, workspaceID, userID
 	`
 	_, err := r.db.ExecContext(ctx, query, workspaceID, userID, role)
 	return err
+}
+
+func (r *workspaceRepository) IsMember(ctx context.Context, workspaceID, userID string) (bool, error) {
+	query := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM workspace_members
+			WHERE workspace_id = $1::uuid
+			  AND user_id = $2::uuid
+		)
+	`
+	var isMember bool
+	if err := r.db.QueryRowContext(ctx, query, workspaceID, userID).Scan(&isMember); err != nil {
+		return false, err
+	}
+	return isMember, nil
 }

@@ -27,7 +27,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	workspaceRepo := repository.NewWorkspaceRepository(db)
 
-	boardService := service.NewBoardService(boardRepo)
+	boardService := service.NewBoardService(boardRepo, workspaceRepo)
 	authService := service.NewAuthService(userRepo, cfg.JWTSecret)
 	bootstrapService := service.NewBootstrapService(userRepo, workspaceRepo, boardRepo)
 
@@ -38,7 +38,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	bootstrapHandler := handler.NewBootstrapHandler(bootstrapService)
 	boardHandler := handler.NewBoardHandler(boardService)
-	wsHandler := handler.NewWebsocketHandler(hub)
+	wsHandler := handler.NewWebsocketHandler(hub, boardService, cfg.CORSOrigins)
 
 	r := router.New(router.Handlers{
 		Health:    healthHandler,
