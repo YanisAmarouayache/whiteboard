@@ -1,6 +1,5 @@
 import { Component, HostListener } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, map } from 'rxjs';
 import { BoardStateService } from '../board-state.service';
 import { Transform } from '../models/transform';
 import { TransformService } from '../services/transform.service';
@@ -70,17 +69,13 @@ export class CanvasComponent {
   }
 
   zoomBy(delta: number): void {
-    this.boardState.update((state) => ({
-      ...state,
-      transform: this.transformService.zoom(state.transform, delta)
-    }));
+    const state = this.boardState.snapshot();
+    this.boardState.setTransform(this.transformService.zoom(state.transform, delta));
   }
 
   resetZoom(): void {
-    this.boardState.update((state) => ({
-      ...state,
-      transform: { ...state.transform, scale: 1 }
-    }));
+    const state = this.boardState.snapshot();
+    this.boardState.setTransform({ ...state.transform, scale: 1 });
   }
 
   zoomPercent(transform: Transform): number {
@@ -96,10 +91,7 @@ export class CanvasComponent {
     if (!this.panning) return;
     const dx = event.clientX - this.panStartMouseX;
     const dy = event.clientY - this.panStartMouseY;
-    this.boardState.replace({
-      ...this.boardState.snapshot(),
-      transform: this.transformService.pan(this.panStartTransform, dx, dy)
-    });
+    this.boardState.setTransform(this.transformService.pan(this.panStartTransform, dx, dy));
   }
 
   @HostListener('document:mouseup')

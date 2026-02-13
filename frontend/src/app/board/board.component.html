@@ -1,7 +1,7 @@
 <section class="board-shell">
   <app-toolbar
-    [boards]="boards"
-    [selectedBoardId]="selectedBoardId"
+    [boards]="(boards$ | async) ?? []"
+    [selectedBoardId]="(selectedBoardId$ | async) ?? ''"
     (boardChange)="onBoardChange($event)"
   ></app-toolbar>
   <div class="board-layout">

@@ -11,7 +11,9 @@ import { BoardStateService } from './board-state.service';
 import { HistoryService } from './services/history.service';
 import { SelectionService } from './services/selection.service';
 import { TransformService } from './services/transform.service';
+import { BoardPersistenceService } from './services/board-persistence.service';
 import { WidgetsModule } from '../widgets/widgets.module';
+import { BoardFacade } from './facades/board.facade';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,14 @@ export class BoardModule {
   static forRoot(): ModuleWithProviders<BoardModule> {
     return {
       ngModule: BoardModule,
-      providers: [BoardStateService, HistoryService, SelectionService, TransformService]
+      providers: [
+        BoardStateService,
+        HistoryService,
+        SelectionService,
+        TransformService,
+        BoardPersistenceService,
+        BoardFacade
+      ]
     };
   }
 }

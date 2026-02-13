@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { Observable, map } from 'rxjs';
 import { WidgetRegistryService } from '../../widget-sdk/widget-registry.service';
 import { BoardStateService } from '../board-state.service';
 import { WidgetInstance } from '../models/widget-instance';
@@ -10,7 +10,7 @@ import { WidgetInstance } from '../models/widget-instance';
   styleUrls: ['./widget-palette.component.scss']
 })
 export class WidgetPaletteComponent {
-  readonly widgets$;
+  readonly widgets$: Observable<WidgetInstance[]>;
   readonly chartTypes = ['pie', 'doughnut', 'bar', 'line'];
 
   constructor(

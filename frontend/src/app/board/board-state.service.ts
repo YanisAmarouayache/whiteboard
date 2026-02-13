@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { BoardState } from './models/board-state';
 import { HistoryService } from './services/history.service';
 import { WidgetInstance } from './models/widget-instance';
+import { Transform } from './models/transform';
 
 const initialState: BoardState = {
   id: '',
@@ -29,9 +30,22 @@ export class BoardStateService {
 
   update(mutator: (state: BoardState) => BoardState): void {
     const current = this.snapshot();
-    this.history.push(current);
     const next = mutator(current);
+    if (next === current) return;
+    this.history.push(current);
     this.stateSubject.next(next);
+  }
+
+  setTransform(transform: Transform): void {
+    const current = this.snapshot();
+    if (
+      current.transform.x === transform.x &&
+      current.transform.y === transform.y &&
+      current.transform.scale === transform.scale
+    ) {
+      return;
+    }
+    this.stateSubject.next({ ...current, transform });
   }
 
   markPersisted(): void {
@@ -54,37 +68,15 @@ export class BoardStateService {
   }
 
   moveWidget(id: string, x: number, y: number): void {
-    this.update((state) => ({
-      ...state,
-      widgets: state.widgets.map((widget) => (widget.id === id ? { ...widget, x, y } : widget))
-    }));
-  }
-
-  resizeWidget(id: string, width: number, height: number): void {
-    this.update((state) => ({
-      ...state,
-      widgets: state.widgets.map((widget) =>
-        widget.id === id ? { ...widget, width, height } : widget
-      )
-    }));
+    this.updateWidget(id, () => ({ x, y }));
   }
 
   setWidgetFrame(id: string, x: number, y: number, width: number, height: number): void {
-    this.update((state) => ({
-      ...state,
-      widgets: state.widgets.map((widget) =>
-        widget.id === id ? { ...widget, x, y, width, height } : widget
-      )
-    }));
+    this.updateWidget(id, () => ({ x, y, width, height }));
   }
 
   updateWidgetConfig(id: string, patch: Record<string, unknown>): void {
-    this.update((state) => ({
-      ...state,
-      widgets: state.widgets.map((widget) =>
-        widget.id === id ? { ...widget, config: { ...widget.config, ...patch } } : widget
-      )
-    }));
+    this.updateWidget(id, (widget) => ({ config: { ...widget.config, ...patch } }));
   }
 
   removeWidget(id: string): void {
@@ -136,5 +128,17 @@ export class BoardStateService {
       widgets.splice(targetIndex, 0, moved);
       return { ...state, widgets };
     });
+  }
+
+  private updateWidget(
+    id: string,
+    patchFactory: (widget: WidgetInstance) => Partial<WidgetInstance>
+  ): void {
+    this.update((state) => ({
+      ...state,
+      widgets: state.widgets.map((widget) =>
+        widget.id === id ? { ...widget, ...patchFactory(widget) } : widget
+      )
+    }));
   }
 }

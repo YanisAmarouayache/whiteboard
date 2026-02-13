@@ -3,6 +3,7 @@ import { ApiService } from './api.service';
 import { Board } from '../models/board';
 import { Workspace } from '../models/workspace';
 import { User } from '../models/user';
+import { environment } from '../../../environments/environment';
 
 interface BootstrapResponse {
   user: User;
@@ -29,5 +30,17 @@ export class BoardApiService {
 
   update(boardId: string, payload: { widgets: unknown[]; version: number }) {
     return this.api.put<void>(`/boards/${boardId}`, payload);
+  }
+
+  keepaliveUpdate(boardId: string, payload: { widgets: unknown[]; version: number }, token: string): void {
+    void fetch(`${environment.apiUrl}/boards/${boardId}`, {
+      method: 'PUT',
+      keepalive: true,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
   }
 }

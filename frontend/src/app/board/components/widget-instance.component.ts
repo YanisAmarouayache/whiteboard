@@ -1,16 +1,18 @@
-import { Component, HostListener, Input, OnChanges, SimpleChanges, Type } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, SimpleChanges, Type } from '@angular/core';
+import { Subscription, fromEvent } from 'rxjs';
 import { WidgetRegistryService } from '../../widget-sdk/widget-registry.service';
 import { WidgetInstance } from '../models/widget-instance';
 import { BoardStateService } from '../board-state.service';
 
 type ResizeDirection = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
+type LayerAction = 'forward' | 'backward' | 'front' | 'back';
 
 @Component({
   selector: 'app-widget-instance',
   templateUrl: './widget-instance.component.html',
   styleUrls: ['./widget-instance.component.scss']
 })
-export class WidgetInstanceComponent implements OnChanges {
+export class WidgetInstanceComponent implements OnChanges, OnDestroy {
   readonly resizeHandles: ResizeDirection[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
   @Input({ required: true }) widget!: WidgetInstance;
@@ -34,6 +36,8 @@ export class WidgetInstanceComponent implements OnChanges {
   contextMenuVisible = false;
   contextMenuX = 0;
   contextMenuY = 0;
+  private dragResizeListeners = new Subscription();
+  private contextMenuListeners = new Subscription();
 
   constructor(
     private readonly registry: WidgetRegistryService,
@@ -53,10 +57,7 @@ export class WidgetInstanceComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['widget'] || this.dragging || this.resizing) return;
-    this.previewX = this.widget.x;
-    this.previewY = this.widget.y;
-    this.previewWidth = this.widget.width;
-    this.previewHeight = this.widget.height;
+    this.setPreviewFromWidget();
   }
 
   startDrag(event: MouseEvent): void {
@@ -79,8 +80,8 @@ export class WidgetInstanceComponent implements OnChanges {
     this.dragStartMouseY = event.clientY;
     this.dragStartWidgetX = this.widget.x;
     this.dragStartWidgetY = this.widget.y;
-    this.previewX = this.widget.x;
-    this.previewY = this.widget.y;
+    this.setPreviewFromWidget();
+    this.bindDragResizeListeners();
   }
 
   openContextMenu(event: MouseEvent): void {
@@ -89,10 +90,13 @@ export class WidgetInstanceComponent implements OnChanges {
     this.contextMenuVisible = true;
     this.contextMenuX = event.offsetX;
     this.contextMenuY = event.offsetY;
+    this.bindContextMenuListeners();
   }
 
   closeContextMenu(): void {
     this.contextMenuVisible = false;
+    this.contextMenuListeners.unsubscribe();
+    this.contextMenuListeners = new Subscription();
   }
 
   deleteWidget(): void {
@@ -101,23 +105,19 @@ export class WidgetInstanceComponent implements OnChanges {
   }
 
   bringForward(): void {
-    this.boardState.bringForward(this.widget.id);
-    this.closeContextMenu();
+    this.applyLayerAction('forward');
   }
 
   sendBackward(): void {
-    this.boardState.sendBackward(this.widget.id);
-    this.closeContextMenu();
+    this.applyLayerAction('backward');
   }
 
   bringToFront(): void {
-    this.boardState.bringToFront(this.widget.id);
-    this.closeContextMenu();
+    this.applyLayerAction('front');
   }
 
   sendToBack(): void {
-    this.boardState.sendToBack(this.widget.id);
-    this.closeContextMenu();
+    this.applyLayerAction('back');
   }
 
   startResize(event: MouseEvent, direction: ResizeDirection): void {
@@ -132,14 +132,11 @@ export class WidgetInstanceComponent implements OnChanges {
     this.resizeStartY = this.widget.y;
     this.resizeStartWidth = this.widget.width;
     this.resizeStartHeight = this.widget.height;
-    this.previewX = this.widget.x;
-    this.previewY = this.widget.y;
-    this.previewWidth = this.widget.width;
-    this.previewHeight = this.widget.height;
+    this.setPreviewFromWidget();
+    this.bindDragResizeListeners();
   }
 
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent): void {
+  private onMouseMove(event: MouseEvent): void {
     if (this.dragging) {
       const dx = event.clientX - this.dragStartMouseX;
       const dy = event.clientY - this.dragStartMouseY;
@@ -182,8 +179,7 @@ export class WidgetInstanceComponent implements OnChanges {
     this.previewHeight = nextHeight;
   }
 
-  @HostListener('document:mouseup')
-  onMouseUp(): void {
+  private onMouseUp(): void {
     if (this.dragging) {
       this.dragging = false;
       this.boardState.moveWidget(this.widget.id, this.previewX, this.previewY);
@@ -199,21 +195,54 @@ export class WidgetInstanceComponent implements OnChanges {
         this.previewHeight
       );
     }
-  }
-
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.contextMenuVisible = false;
-  }
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    this.contextMenuVisible = false;
+    this.dragResizeListeners.unsubscribe();
+    this.dragResizeListeners = new Subscription();
   }
 
   private isInteractiveTarget(target: EventTarget | null): boolean {
     const element = target as HTMLElement | null;
     if (!element) return false;
     return !!element.closest('textarea,input,select,button,label,a');
+  }
+
+  private setPreviewFromWidget(): void {
+    this.previewX = this.widget.x;
+    this.previewY = this.widget.y;
+    this.previewWidth = this.widget.width;
+    this.previewHeight = this.widget.height;
+  }
+
+  private applyLayerAction(action: LayerAction): void {
+    const actions: Record<LayerAction, () => void> = {
+      forward: () => this.boardState.bringForward(this.widget.id),
+      backward: () => this.boardState.sendBackward(this.widget.id),
+      front: () => this.boardState.bringToFront(this.widget.id),
+      back: () => this.boardState.sendToBack(this.widget.id)
+    };
+    actions[action]();
+    this.closeContextMenu();
+  }
+
+  private bindDragResizeListeners(): void {
+    this.dragResizeListeners.unsubscribe();
+    this.dragResizeListeners = new Subscription();
+    this.dragResizeListeners.add(fromEvent<MouseEvent>(document, 'mousemove').subscribe((event) => this.onMouseMove(event)));
+    this.dragResizeListeners.add(fromEvent<MouseEvent>(document, 'mouseup').subscribe(() => this.onMouseUp()));
+  }
+
+  private bindContextMenuListeners(): void {
+    this.contextMenuListeners.unsubscribe();
+    this.contextMenuListeners = new Subscription();
+    this.contextMenuListeners.add(fromEvent<MouseEvent>(document, 'click').subscribe(() => this.closeContextMenu()));
+    this.contextMenuListeners.add(
+      fromEvent<KeyboardEvent>(document, 'keydown').subscribe((event) => {
+        if (event.key === 'Escape') this.closeContextMenu();
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.dragResizeListeners.unsubscribe();
+    this.contextMenuListeners.unsubscribe();
   }
 }
