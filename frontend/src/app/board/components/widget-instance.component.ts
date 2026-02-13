@@ -29,6 +29,7 @@ export class WidgetInstanceComponent implements OnChanges, OnDestroy {
   private resizeStartY = 0;
   private resizeStartWidth = 0;
   private resizeStartHeight = 0;
+  private interactionScale = 1;
   previewX = 0;
   previewY = 0;
   previewWidth = 280;
@@ -80,6 +81,7 @@ export class WidgetInstanceComponent implements OnChanges, OnDestroy {
     this.dragStartMouseY = event.clientY;
     this.dragStartWidgetX = this.widget.x;
     this.dragStartWidgetY = this.widget.y;
+    this.interactionScale = Math.max(0.0001, this.boardState.snapshot().transform.scale);
     this.setPreviewFromWidget();
     this.bindDragResizeListeners();
   }
@@ -132,14 +134,15 @@ export class WidgetInstanceComponent implements OnChanges, OnDestroy {
     this.resizeStartY = this.widget.y;
     this.resizeStartWidth = this.widget.width;
     this.resizeStartHeight = this.widget.height;
+    this.interactionScale = Math.max(0.0001, this.boardState.snapshot().transform.scale);
     this.setPreviewFromWidget();
     this.bindDragResizeListeners();
   }
 
   private onMouseMove(event: MouseEvent): void {
     if (this.dragging) {
-      const dx = event.clientX - this.dragStartMouseX;
-      const dy = event.clientY - this.dragStartMouseY;
+      const dx = (event.clientX - this.dragStartMouseX) / this.interactionScale;
+      const dy = (event.clientY - this.dragStartMouseY) / this.interactionScale;
       this.previewX = this.dragStartWidgetX + dx;
       this.previewY = this.dragStartWidgetY + dy;
       return;
@@ -147,8 +150,8 @@ export class WidgetInstanceComponent implements OnChanges, OnDestroy {
 
     if (!this.resizing) return;
 
-    const dx = event.clientX - this.resizeStartMouseX;
-    const dy = event.clientY - this.resizeStartMouseY;
+    const dx = (event.clientX - this.resizeStartMouseX) / this.interactionScale;
+    const dy = (event.clientY - this.resizeStartMouseY) / this.interactionScale;
 
     let nextX = this.resizeStartX;
     let nextY = this.resizeStartY;
